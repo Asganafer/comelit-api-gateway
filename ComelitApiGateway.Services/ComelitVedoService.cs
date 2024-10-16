@@ -27,14 +27,14 @@ namespace ComelitApiGateway.Services
         public ComelitVedoService(IConfiguration config)
         {
             _config = config;
-            _BASE_ADDRESS = config["ComelitVedo:BaseAddress"]?.ToString() ?? "";
+            _BASE_ADDRESS = config["VEDO_URL"]?.ToString() ?? "";
         }
 
         public async Task<string> Login()
         {
             using (HttpClient client = await BuildHttpClient(true))
             {
-                HttpResponseMessage response = await client.PostAsync("/login.cgi", new StringContent($"code={_config["ComelitVedo:Code"]}&_={DateTime.Now.ToString("ddMMyyyyhhmmss")}"));
+                HttpResponseMessage response = await client.PostAsync("/login.cgi", new StringContent($"code={_config["VEDO_KEY"]}&_={DateTime.Now.ToString("ddMMyyyyhhmmss")}"));
                 return SetCookieUID(response);
             }
         }
@@ -116,7 +116,7 @@ namespace ComelitApiGateway.Services
 
             if (!Areas.Any())
             {
-                var exludedAreas = _config["ComelitVedo:ExcludedAreasIds"]?.ToString() ?? "";
+                var exludedAreas = _config["VEDO_EXCLUDED_AREAS_ID"]?.ToString() ?? "";
                 var elements = (await ComelitGetAreasDescription()).AreaNames;
                 for (int i = 0; i < elements.Count; i++)
                 {

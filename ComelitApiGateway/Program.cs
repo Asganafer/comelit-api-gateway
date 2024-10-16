@@ -1,16 +1,32 @@
+using ComelitApiGateway.Commons.Exceptions;
 using ComelitApiGateway.Commons.Interfaces;
 using ComelitApiGateway.Services;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Get environment variable injected from docker
+builder.Configuration.AddEnvironmentVariables();
+
+if (String.IsNullOrEmpty(builder.Configuration["VEDO_KEY"]))
+{
+    throw new GeneralException("VEDO_KEY is not set");
+}
+
+if (String.IsNullOrEmpty(builder.Configuration["VEDO_URL"]))
+{
+    throw new GeneralException("VEDO_URL is not set");
+}
+
 //Choose whats did you prefer
-builder.WebHost.ConfigureKestrel(options => options.ListenLocalhost(5000));
-//builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(5000));
+#if DEBUG
+    builder.WebHost.ConfigureKestrel(options => options.ListenLocalhost(5000));
+#else
+builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(5000));
+#endif
 
 // Add services to the container.
 builder.Services.AddSingleton<IComelitVedo, ComelitVedoService>();
-
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -24,8 +40,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || Convert.ToBoolean(builder.Configuration["ENABLE_SWAGGER"]) == true)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
