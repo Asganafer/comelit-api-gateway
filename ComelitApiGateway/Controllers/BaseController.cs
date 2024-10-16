@@ -12,7 +12,12 @@ namespace ComelitApiGateway.Controllers
             _config = config;
         }
 
-        
+        protected void ManageException(Exception ex)
+        {
+            Console.WriteLine("********************************");
+            Console.WriteLine(ex);
+            Console.WriteLine("********************************");
+        }
 
         
     }
