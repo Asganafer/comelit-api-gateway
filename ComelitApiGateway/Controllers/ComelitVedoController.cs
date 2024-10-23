@@ -1,7 +1,7 @@
-﻿using ComelitApiGateway.Commons.Dtos.Vedo;
+﻿using ComelitApiGateway.Commons.Dtos;
+using ComelitApiGateway.Commons.Dtos.Vedo;
 using ComelitApiGateway.Commons.Enums.Vedo;
 using ComelitApiGateway.Commons.Interfaces;
-using ComelitApiGateway.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -29,7 +29,7 @@ namespace ComelitApiGateway.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("status")]
-        [ProducesResponseType(typeof(VedoStatusModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(VedoStatusDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetGeneralStatus()
         {
             try
@@ -61,7 +61,7 @@ namespace ComelitApiGateway.Controllers
                 }
                 else
                 {
-                    return Ok(new VedoStatusModel()
+                    return Ok(new VedoStatusDto()
                     {
                         Id = AlarmStatusEnum.NotEntered,
                         Description = AlarmStatusEnum.NotEntered.ToString()
@@ -72,7 +72,7 @@ namespace ComelitApiGateway.Controllers
             {
                 ManageException(ex);
 
-                return Ok(new VedoStatusModel
+                return Ok(new VedoStatusDto
                 {
                     Id = AlarmStatusEnum.Unknown,
                     Description = AlarmStatusEnum.Unknown.ToString()

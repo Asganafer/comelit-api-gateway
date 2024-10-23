@@ -1,11 +1,11 @@
 ﻿using ComelitApiGateway.Commons.Enums.Vedo;
 
-namespace ComelitApiGateway.Models
+namespace ComelitApiGateway.Commons.Dtos
 {
     /// <summary>
     /// State of the alarm (Comelit vedo)
     /// </summary>
-    public class VedoStatusModel
+    public class VedoStatusDto
     {
         /// <summary>
         /// ID of alarm state

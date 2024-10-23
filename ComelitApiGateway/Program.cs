@@ -27,6 +27,8 @@ builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(5000));
 
 // Add services to the container.
 builder.Services.AddSingleton<IComelitVedo, ComelitVedoService>();
+builder.Services.AddSingleton<IVedoEventDispatcher, VedoEventDispatcher>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
