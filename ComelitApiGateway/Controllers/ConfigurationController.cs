@@ -1,5 +1,4 @@
-﻿using ComelitApiGateway.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace ComelitApiGateway.Controllers
 {

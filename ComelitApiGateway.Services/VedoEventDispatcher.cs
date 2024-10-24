@@ -2,6 +2,7 @@ using System.Text.Json;
 using ComelitApiGateway.Commons;
 using ComelitApiGateway.Commons.Dtos;
 using ComelitApiGateway.Commons.Dtos.Events;
+using ComelitApiGateway.Commons.Dtos.Vedo;
 using ComelitApiGateway.Commons.Dtos.Vedo.ComelitSystem;
 using ComelitApiGateway.Commons.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ namespace ComelitApiGateway.Services
     public class VedoEventDispatcher : IVedoEventDispatcher, IDisposable
     {
         private IMqttClient _mqttClient;
+        private IConfiguration _config;
         private bool _disposed = false;
         private bool dispatchEvents = false;
 
@@ -20,43 +22,53 @@ namespace ComelitApiGateway.Services
         {
             //Verify if MQTT is enabled
             dispatchEvents = Convert.ToBoolean(config["MQTT_ENABLED"]?.ToString() ?? "false");
-
+            _config = config;
+        }
+        public async Task InitializeAsync()
+        {
             if (dispatchEvents)
             {
+
                 EventConfigurationDto eventConfiguration = new EventConfigurationDto()
                 {
-                    BrokerAddress = config["MQTT_IP"]?.ToString() ?? "",
-                    BrokerPort = Convert.ToInt32(config["MQTT_PORT"]?.ToString() ?? "0"),
+                    BrokerAddress = _config["MQTT_IP"]?.ToString() ?? "",
+                    BrokerPort = Convert.ToInt32(_config["MQTT_PORT"]?.ToString() ?? "0"),
                     ClientId = "ComelitApiGateway",
-                    Username = config["MQTT_USERNAME"]?.ToString() ?? "",
-                    Password = config["MQTT_PASSWORD"]?.ToString() ?? "",
+                    Username = _config["MQTT_USERNAME"]?.ToString() ?? "",
+                    Password = _config["MQTT_PASSWORD"]?.ToString() ?? "",
                 };
 
-            }
-        }
-        public async Task InitializeAsync(EventConfigurationDto eventConfiguration)
-        {
-            VerifyConfiguration(eventConfiguration);
+                VerifyConfiguration(eventConfiguration);
 
-            if (dispatchEvents)
-            {
-                var factory = new MqttFactory();
-                _mqttClient = factory.CreateMqttClient();
+                if (_mqttClient == null)
+                {
 
-                var options = new MqttClientOptionsBuilder()
+                    var factory = new MqttFactory();
+                    _mqttClient = factory.CreateMqttClient();
+                }
+
+
+                if (!_mqttClient.IsConnected)
+                {
+                    var options = new MqttClientOptionsBuilder()
                     .WithClientId(eventConfiguration.ClientId)
                     .WithTcpServer(eventConfiguration.BrokerAddress, eventConfiguration.BrokerPort)
                     .WithCredentials(eventConfiguration.Username, eventConfiguration.Password)
                     .Build();
 
-                await _mqttClient.ConnectAsync(options, CancellationToken.None);
+                    await _mqttClient.ConnectAsync(options, CancellationToken.None);
+                }
             }
+
+
+
         }
 
         public async Task OnChangeAlarmStatusAsync(VedoStatusDto globalStatus)
         {
             if (dispatchEvents)
             {
+                await InitializeAsync();
                 var message = new MqttApplicationMessageBuilder()
                     .WithTopic("/comelit/vedo/alarm/change")
                     .WithPayload(JsonSerializer.Serialize(globalStatus))
@@ -68,13 +80,14 @@ namespace ComelitApiGateway.Services
             }
         }
 
-        public async Task OnChangeZoneStatusAsync(VedoZoneStatusDTO zoneStatus)
+        public async Task OnChangeAreaStatusAsync(VedoAreaStatusDTO areaStatus)
         {
             if (dispatchEvents)
             {
+                await InitializeAsync();
                 var message = new MqttApplicationMessageBuilder()
-                    .WithTopic("/comelit/vedo/alarm/zone/change")
-                    .WithPayload(JsonSerializer.Serialize(zoneStatus))
+                    .WithTopic("/comelit/vedo/alarm/area/change")
+                    .WithPayload(JsonSerializer.Serialize(areaStatus))
                     .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.ExactlyOnce)
                     .WithRetainFlag(false)
                     .Build();

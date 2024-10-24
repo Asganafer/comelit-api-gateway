@@ -1,5 +1,6 @@
 using ComelitApiGateway.Commons.Dtos;
 using ComelitApiGateway.Commons.Dtos.Events;
+using ComelitApiGateway.Commons.Dtos.Vedo;
 using ComelitApiGateway.Commons.Dtos.Vedo.ComelitSystem;
 
 namespace ComelitApiGateway.Commons.Interfaces
@@ -13,7 +14,7 @@ namespace ComelitApiGateway.Commons.Interfaces
         /// Initializes a new instance of the <see cref="IEventDispatcher"/> interface.
         /// </summary>
         /// <param name="eventConfiguration">The event configuration.</param>
-        Task InitializeAsync(EventConfigurationDto eventConfiguration);
+        Task InitializeAsync();
         
         /// <summary>
         /// Dispatch event about change of global alarm status
@@ -25,6 +26,6 @@ namespace ComelitApiGateway.Commons.Interfaces
         /// Dispatch event when status of zone change
         /// </summary>
         /// <param name="globalStatus"></param>
-        Task OnChangeZoneStatusAsync(VedoZoneStatusDTO zoneStatus);
+        Task OnChangeAreaStatusAsync(VedoAreaStatusDTO areaStatus);
     }
 }

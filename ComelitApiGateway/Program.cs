@@ -1,6 +1,7 @@
 using ComelitApiGateway.Commons.Exceptions;
 using ComelitApiGateway.Commons.Interfaces;
 using ComelitApiGateway.Services;
+using ComelitApiGateway.Tasks;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,9 +26,15 @@ if (String.IsNullOrEmpty(builder.Configuration["VEDO_URL"]))
 builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(5000));
 #endif
 
-// Add services to the container.
+//Services
 builder.Services.AddSingleton<IComelitVedo, ComelitVedoService>();
 builder.Services.AddSingleton<IVedoEventDispatcher, VedoEventDispatcher>();
+
+//Tasks
+if (builder.Configuration["MQTT_ENABLED"] == "true")
+{
+    builder.Services.AddHostedService<VedoWatchdog>();
+}
 
 
 builder.Services.AddControllers();

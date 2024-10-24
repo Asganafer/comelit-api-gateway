@@ -1,4 +1,5 @@
-﻿using ComelitApiGateway.Commons.Dtos.Vedo;
+﻿using ComelitApiGateway.Commons.Dtos;
+using ComelitApiGateway.Commons.Dtos.Vedo;
 using ComelitApiGateway.Commons.Dtos.Vedo.ComelitSystem;
 using ComelitApiGateway.Commons.Enums.Vedo;
 using ComelitApiGateway.Commons.Interfaces;
@@ -40,6 +41,34 @@ namespace ComelitApiGateway.Services
         }
 
         #region Vedo System API Calls
+
+        public async Task<VedoStatusDto> GetGlobalAlarmStatus()
+        {
+            VedoStatusDto status = new VedoStatusDto();
+            var areas = await GetAreasStatus();
+            if (areas.Any(x => x.Alarm))
+            {
+                status.Id = AlarmStatusEnum.Alarm;
+                status.Description = AlarmStatusEnum.Alarm.ToString();
+            }
+            else if (areas.All(x => x.Status == AlarmStatusEnum.Active))
+            {
+                status.Id = AlarmStatusEnum.Active;
+                status.Description = AlarmStatusEnum.Active.ToString();
+            }
+            else if (areas.Any(x => x.Armed))
+            {
+                status.Id = AlarmStatusEnum.PartialActive;
+                status.Description = AlarmStatusEnum.PartialActive.ToString();
+            }
+            else
+            {
+                status.Id = AlarmStatusEnum.NotEntered;
+                status.Description = AlarmStatusEnum.NotEntered.ToString();
+            }
+
+            return status;
+        }
 
         public async Task<T?> ComelitApiGetCall<T>(string apiUrl) where T : class
         {
@@ -135,6 +164,8 @@ namespace ComelitApiGateway.Services
             return Areas;
 
         }
+
+
 
         public async Task<List<VedoAreaStatusDTO>> GetAreasStatus()
         {

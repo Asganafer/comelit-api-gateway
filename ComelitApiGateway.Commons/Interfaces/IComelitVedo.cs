@@ -1,4 +1,5 @@
-﻿using ComelitApiGateway.Commons.Dtos.Vedo;
+﻿using ComelitApiGateway.Commons.Dtos;
+using ComelitApiGateway.Commons.Dtos.Vedo;
 using ComelitApiGateway.Commons.Dtos.Vedo.ComelitSystem;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,8 @@ namespace ComelitApiGateway.Commons.Interfaces
         /// </summary>
         /// <returns></returns>
         Task<List<VedoAreaDTO>> GetAreasList();
+        
+        Task<VedoStatusDto> GetGlobalAlarmStatus();
         Task<List<VedoAreaStatusDTO>> GetAreasStatus();
         Task<List<VedoZoneDTO>> GetZoneList(int idArea = 0, bool removeHiddenZones = true);
 
